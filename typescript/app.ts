@@ -44,6 +44,37 @@ class Electronic extends Product {
   }
 }
 
-let book = new Book("kibria", "The song of ice and fire", "1", 100, "This is a nice book");
+interface Customer {
+  getDiscount(): number;
+}
 
-book.display();
+class PremiumCustomer implements Customer {
+  public getDiscount() {
+    return 20;
+  }
+}
+
+class RegularCustomer implements Customer {
+  public getDiscount() {
+    return 10;
+  }
+}
+
+class GoldCustomer implements Customer {
+  public getDiscount() {
+    return 30;
+  }
+}
+
+class Discount {
+  public getDiscount(customer: Customer) {
+    return customer.getDiscount();
+  }
+}
+
+let customer = new GoldCustomer();
+
+let discount: Discount = new Discount();
+
+let finalResult = discount.getDiscount(customer);
+console.log(finalResult);

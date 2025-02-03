@@ -125,3 +125,43 @@ class Logger {
 }
 
 let logger = Logger.getInstance();
+
+// protoType design pattern
+
+interface ShapeProperties {
+  color: string;
+  x: number;
+  y: number;
+}
+
+abstract class Shape {
+  abstract clone(): Shape;
+  constructor(public properties: ShapeProperties) {}
+}
+
+class Rectangle extends Shape {
+  constructor(properties: ShapeProperties, public width: number, public height: number) {
+    super(properties);
+  }
+  clone(): Shape {
+    let clonedProperties: ShapeProperties = { ...this.properties };
+    let clone = new Rectangle(clonedProperties, this.width, this.height);
+    return clone;
+  }
+}
+
+class Circle extends Shape {
+  constructor(properties: ShapeProperties, public radius: number) {
+    super(properties);
+  }
+  clone(): Shape {
+    let clonedProperties: ShapeProperties = { ...this.properties };
+    let clone = new Circle(clonedProperties, this.radius);
+    return clone;
+  }
+}
+
+let rectangle1 = new Rectangle({ color: "red", x: 10, y: 20 }, 30, 40);
+let rectangle2 = rectangle1.clone();
+
+console.log(rectangle1, rectangle2, rectangle1 === rectangle2);

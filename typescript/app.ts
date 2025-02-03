@@ -168,78 +168,141 @@
 
 //add builder pattern
 
-interface ICustomerBuilder {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  setFirstName(firstName: string): ICustomerBuilder;
-  setLastName(lastName: string): ICustomerBuilder;
-  setEmail(email: string): ICustomerBuilder;
-  setPhone(phoneNumber: string): ICustomerBuilder;
-  build(): ICustomer;
+// interface ICustomerBuilder {
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   phoneNumber: string;
+//   setFirstName(firstName: string): ICustomerBuilder;
+//   setLastName(lastName: string): ICustomerBuilder;
+//   setEmail(email: string): ICustomerBuilder;
+//   setPhone(phoneNumber: string): ICustomerBuilder;
+//   build(): ICustomer;
+// }
+
+// interface ICustomer {
+//   fisrtName: string;
+//   lastName: string;
+//   email: string;
+//   phoneNumber: string;
+// }
+
+// class Customer implements ICustomer {
+//   constructor(
+//     public fisrtName: string,
+//     public lastName: string,
+//     public email: string,
+//     public phoneNumber: string
+//   ) {}
+// }
+
+// class CustomerBuilder implements ICustomerBuilder {
+//   firstName: string = "";
+//   lastName: string = "";
+//   email: string = "";
+//   phoneNumber: string = "";
+
+//   setFirstName(firstName: string): ICustomerBuilder {
+//     this.firstName = firstName;
+//     return this;
+//   }
+//   setLastName(lastName: string): ICustomerBuilder {
+//     this.lastName = lastName;
+//     return this;
+//   }
+//   setEmail(email: string): ICustomerBuilder {
+//     this.email = email;
+//     return this;
+//   }
+
+//   setPhone(phone: string): ICustomerBuilder {
+//     this.phoneNumber = phone;
+//     return this;
+//   }
+//   build() {
+//     return new Customer(this.firstName, this.lastName, this.email, this.phoneNumber);
+//   }
+// }
+
+// class CustomerDirector {
+//   private builder!: ICustomerBuilder;
+//   public buildMinimal(firstName: string, lastName: string, email: string): ICustomer {
+//     this.builder.setFirstName(firstName);
+//     this.builder.setLastName(lastName);
+//     this.builder.setEmail(email);
+//     return this.builder.build();
+//   }
+//   public setBuilder(builder: ICustomerBuilder) {
+//     this.builder = builder;
+//   }
+// }
+
+// let customerBuilder = new CustomerBuilder();
+
+// let director = new CustomerDirector();
+// director.setBuilder(customerBuilder);
+// let customer = director.buildMinimal("kibria", "Ahmed", "gkibria121@gmail.com");
+// console.log(customer);
+
+class Amplifier {
+  public turnOn(): void {
+    console.log("Turning on Amplifier...");
+  }
+  setVolume(level: number): void {
+    console.log(`Volume set to ${level}`);
+  }
 }
 
-interface ICustomer {
-  fisrtName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
+class DvdPlayer {
+  public turnOn(): void {
+    console.log("Turning on DvdPlayer...");
+  }
+  play(movie: string): void {
+    console.log(`Playing ${movie}...`);
+  }
 }
 
-class Customer implements ICustomer {
+class Projector {
+  public turnOn(): void {
+    console.log("Turning on Projector...");
+  }
+  public setInput(dvdPlayer: DvdPlayer) {
+    console.log("Showing on projector..");
+  }
+}
+
+class Ligts {
+  dim(level: number): void {
+    console.log(`Dim light to ${level}`);
+  }
+}
+
+class HomeTheaterFacede {
   constructor(
-    public fisrtName: string,
-    public lastName: string,
-    public email: string,
-    public phoneNumber: string
+    private amplifier: Amplifier,
+    private dvdPlayer: DvdPlayer,
+    private projector: Projector,
+    private lights: Ligts
   ) {}
-}
 
-class CustomerBuilder implements ICustomerBuilder {
-  firstName: string = "";
-  lastName: string = "";
-  email: string = "";
-  phoneNumber: string = "";
+  watchMovie(movie: string, volume: number = 50, level: number = 50): void {
+    this.dvdPlayer.turnOn();
+    this.amplifier.turnOn();
+    this.projector.turnOn();
+    this.projector.setInput(this.dvdPlayer);
 
-  setFirstName(firstName: string): ICustomerBuilder {
-    this.firstName = firstName;
-    return this;
-  }
-  setLastName(lastName: string): ICustomerBuilder {
-    this.lastName = lastName;
-    return this;
-  }
-  setEmail(email: string): ICustomerBuilder {
-    this.email = email;
-    return this;
-  }
-
-  setPhone(phone: string): ICustomerBuilder {
-    this.phoneNumber = phone;
-    return this;
-  }
-  build() {
-    return new Customer(this.firstName, this.lastName, this.email, this.phoneNumber);
+    this.lights.dim(level);
+    this.amplifier.setVolume(volume);
+    this.dvdPlayer.play(movie);
   }
 }
 
-class CustomerDirector {
-  private builder!: ICustomerBuilder;
-  public buildMinimal(firstName: string, lastName: string, email: string): ICustomer {
-    this.builder.setFirstName(firstName);
-    this.builder.setLastName(lastName);
-    this.builder.setEmail(email);
-    return this.builder.build();
-  }
-  public setBuilder(builder: ICustomerBuilder) {
-    this.builder = builder;
-  }
-}
+let amplifier = new Amplifier();
+let dvdPlayer = new DvdPlayer();
+let projector = new Projector();
 
-let customerBuilder = new CustomerBuilder();
+let light = new Ligts();
 
-let director = new CustomerDirector();
-director.setBuilder(customerBuilder);
-let customer = director.buildMinimal("kibria", "Ahmed", "gkibria121@gmail.com");
-console.log(customer);
+let homeTheaterFacede = new HomeTheaterFacede(amplifier, dvdPlayer, projector, light);
+
+homeTheaterFacede.watchMovie("Saale Ashik");

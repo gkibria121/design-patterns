@@ -307,54 +307,107 @@
 
 // homeTheaterFacede.watchMovie("Saale Ashik");
 
-interface Database {
-  connect(): void;
-  query(sql: string): void;
-  close(): void;
+// interface Database {
+//   connect(): void;
+//   query(sql: string): void;
+//   close(): void;
+// }
+
+// class PostgreSQLDatabase implements Database {
+//   connect(): void {
+//     console.log("Connecting to PostgreSQL Database");
+//   }
+//   query(sql: string): void {
+//     console.log("Execute : " + sql);
+//   }
+
+//   close(): void {
+//     console.log("Closing PostgreSQL");
+//   }
+// }
+
+// class MongoDBDatabase implements Database {
+//   connect(): void {
+//     console.log("Connecting to MongoDB Database");
+//   }
+//   query(sql: string): void {
+//     console.log("Execute : " + sql);
+//   }
+
+//   close(): void {
+//     console.log("Closing MongoDB");
+//   }
+// }
+
+// abstract class DatabaseService {
+//   constructor(protected database: Database) {}
+//   abstract fetchData(query: string): any;
+// }
+
+// class ClientDatabaseService extends DatabaseService {
+//   fetchData(query: string): any {
+//     this.database.connect();
+//     let result = this.database.query(query);
+//     this.database.close();
+//     return result;
+//   }
+// }
+
+// let mongoDB = new MongoDBDatabase();
+
+// let clientDatabaseService = new ClientDatabaseService(mongoDB);
+
+// clientDatabaseService.fetchData("select * from students;");
+
+abstract class FileSystemComponent {
+  constructor(protected name: string, protected size: number) {}
+  public getName(): string {
+    return this.name;
+  }
+  public getSize(): number {
+    return this.size;
+  }
 }
 
-class PostgreSQLDatabase implements Database {
-  connect(): void {
-    console.log("Connecting to PostgreSQL Database");
-  }
-  query(sql: string): void {
-    console.log("Execute : " + sql);
+class FileClass extends FileSystemComponent {}
+
+abstract class CompositeFileSystemComponent extends FileSystemComponent {
+  protected abstract components: FileSystemComponent[];
+  abstract addComponent(component: FileSystemComponent): void;
+  abstract removeComponent(component: FileSystemComponent): boolean;
+  abstract getComponents(): FileSystemComponent[];
+}
+
+class Folder extends CompositeFileSystemComponent {
+  protected components: FileSystemComponent[] = [];
+
+  constructor(protected name: string) {
+    super(name, NaN);
   }
 
-  close(): void {
-    console.log("Closing PostgreSQL");
+  addComponent(component: FileSystemComponent): void {
+    this.components.push(component);
+  }
+  removeComponent(component: FileSystemComponent): boolean {
+    let index = this.components.indexOf(component);
+    if (index == -1) return false;
+    this.components.splice(index, 1);
+    return true;
+  }
+  getComponents(): FileSystemComponent[] {
+    return this.components;
+  }
+  public getSize(): number {
+    return this.components.reduce((acc, cur) => acc + cur.getSize(), 0);
   }
 }
 
-class MongoDBDatabase implements Database {
-  connect(): void {
-    console.log("Connecting to MongoDB Database");
-  }
-  query(sql: string): void {
-    console.log("Execute : " + sql);
-  }
+let file1 = new FileClass("file1.txt", 100);
+let file2 = new FileClass("file2.txt", 200);
 
-  close(): void {
-    console.log("Closing MongoDB");
-  }
-}
+let folder = new Folder("folder-1");
 
-abstract class DatabaseService {
-  constructor(protected database: Database) {}
-  abstract fetchData(query: string): any;
-}
+folder.addComponent(file1);
+folder.addComponent(file2);
 
-class ClientDatabaseService extends DatabaseService {
-  fetchData(query: string): any {
-    this.database.connect();
-    let result = this.database.query(query);
-    this.database.close();
-    return result;
-  }
-}
-
-let mongoDB = new MongoDBDatabase();
-
-let clientDatabaseService = new ClientDatabaseService(mongoDB);
-
-clientDatabaseService.fetchData("select * from students;");
+console.log(folder);

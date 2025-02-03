@@ -22,6 +22,10 @@ class Book extends Product {
   ) {
     super(id, price, description);
   }
+  public display(): void {
+    super.display();
+    console.log(`\nAuthor : ${this.author} \nTitle: ${this.title}`);
+  }
 }
 
 class Electronic extends Product {
@@ -33,6 +37,10 @@ class Electronic extends Product {
     public description: string
   ) {
     super(id, price, description);
+  }
+  public display(): void {
+    super.display();
+    console.log(`\nBrand : ${this.brand} \nModel: ${this.model}`);
   }
 }
 

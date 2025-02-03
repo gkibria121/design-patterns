@@ -244,65 +244,117 @@
 // let customer = director.buildMinimal("kibria", "Ahmed", "gkibria121@gmail.com");
 // console.log(customer);
 
-class Amplifier {
-  public turnOn(): void {
-    console.log("Turning on Amplifier...");
+// class Amplifier {
+//   public turnOn(): void {
+//     console.log("Turning on Amplifier...");
+//   }
+//   setVolume(level: number): void {
+//     console.log(`Volume set to ${level}`);
+//   }
+// }
+
+// class DvdPlayer {
+//   public turnOn(): void {
+//     console.log("Turning on DvdPlayer...");
+//   }
+//   play(movie: string): void {
+//     console.log(`Playing ${movie}...`);
+//   }
+// }
+
+// class Projector {
+//   public turnOn(): void {
+//     console.log("Turning on Projector...");
+//   }
+//   public setInput(dvdPlayer: DvdPlayer) {
+//     console.log("Showing on projector..");
+//   }
+// }
+
+// class Ligts {
+//   dim(level: number): void {
+//     console.log(`Dim light to ${level}`);
+//   }
+// }
+
+// class HomeTheaterFacede {
+//   constructor(
+//     private amplifier: Amplifier,
+//     private dvdPlayer: DvdPlayer,
+//     private projector: Projector,
+//     private lights: Ligts
+//   ) {}
+
+//   watchMovie(movie: string, volume: number = 50, level: number = 50): void {
+//     this.dvdPlayer.turnOn();
+//     this.amplifier.turnOn();
+//     this.projector.turnOn();
+//     this.projector.setInput(this.dvdPlayer);
+
+//     this.lights.dim(level);
+//     this.amplifier.setVolume(volume);
+//     this.dvdPlayer.play(movie);
+//   }
+// }
+
+// let amplifier = new Amplifier();
+// let dvdPlayer = new DvdPlayer();
+// let projector = new Projector();
+
+// let light = new Ligts();
+
+// let homeTheaterFacede = new HomeTheaterFacede(amplifier, dvdPlayer, projector, light);
+
+// homeTheaterFacede.watchMovie("Saale Ashik");
+
+interface Database {
+  connect(): void;
+  query(sql: string): void;
+  close(): void;
+}
+
+class PostgreSQLDatabase implements Database {
+  connect(): void {
+    console.log("Connecting to PostgreSQL Database");
   }
-  setVolume(level: number): void {
-    console.log(`Volume set to ${level}`);
+  query(sql: string): void {
+    console.log("Execute : " + sql);
+  }
+
+  close(): void {
+    console.log("Closing PostgreSQL");
   }
 }
 
-class DvdPlayer {
-  public turnOn(): void {
-    console.log("Turning on DvdPlayer...");
+class MongoDBDatabase implements Database {
+  connect(): void {
+    console.log("Connecting to MongoDB Database");
   }
-  play(movie: string): void {
-    console.log(`Playing ${movie}...`);
+  query(sql: string): void {
+    console.log("Execute : " + sql);
   }
-}
 
-class Projector {
-  public turnOn(): void {
-    console.log("Turning on Projector...");
-  }
-  public setInput(dvdPlayer: DvdPlayer) {
-    console.log("Showing on projector..");
+  close(): void {
+    console.log("Closing MongoDB");
   }
 }
 
-class Ligts {
-  dim(level: number): void {
-    console.log(`Dim light to ${level}`);
+abstract class DatabaseService {
+  constructor(protected database: Database) {}
+  abstract fetchData(query: string): any;
+}
+
+class ClientDatabaseService extends DatabaseService {
+  fetchData(query: string): any {
+    this.database.connect();
+    let result = this.database.query(query);
+    this.database.close();
+    return result;
   }
 }
 
-class HomeTheaterFacede {
-  constructor(
-    private amplifier: Amplifier,
-    private dvdPlayer: DvdPlayer,
-    private projector: Projector,
-    private lights: Ligts
-  ) {}
+let mongoDB = new MongoDBDatabase();
 
-  watchMovie(movie: string, volume: number = 50, level: number = 50): void {
-    this.dvdPlayer.turnOn();
-    this.amplifier.turnOn();
-    this.projector.turnOn();
-    this.projector.setInput(this.dvdPlayer);
+let clientDatabaseService = new ClientDatabaseService(mongoDB);
 
-    this.lights.dim(level);
-    this.amplifier.setVolume(volume);
-    this.dvdPlayer.play(movie);
-  }
-}
-
-let amplifier = new Amplifier();
-let dvdPlayer = new DvdPlayer();
-let projector = new Projector();
-
-let light = new Ligts();
-
-let homeTheaterFacede = new HomeTheaterFacede(amplifier, dvdPlayer, projector, light);
-
-homeTheaterFacede.watchMovie("Saale Ashik");
+clientDatabaseService.fetchData("select * from students;");

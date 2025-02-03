@@ -77,4 +77,36 @@ let customer = new GoldCustomer();
 let discount: Discount = new Discount();
 
 let finalResult = discount.getDiscount(customer);
-console.log(finalResult);
+
+abstract class PaymentMethod {
+  public abstract process(amount: number): void;
+}
+
+class CreditCard extends PaymentMethod {
+  process(amount: number): void {
+    console.log(`Processing Credit Card - Amount : $${amount}`);
+  }
+}
+
+class DebitCard extends PaymentMethod {
+  process(amount: number): void {
+    console.log(`Processing Debit Card - Amount : $${amount}`);
+  }
+}
+
+class Paypal extends PaymentMethod {
+  process(amount: number): void {
+    console.log(`Processing PayPal - Amount : $${amount}`);
+  }
+}
+
+class PaymentPrcoessor {
+  public process(pyamentMethod: PaymentMethod, amount: number) {
+    pyamentMethod.process(amount);
+  }
+}
+
+// let paymentMethod = new Paypal();
+
+// let processor = new PaymentPrcoessor();
+// processor.process(paymentMethod, 10);

@@ -110,3 +110,18 @@ class PaymentPrcoessor {
 
 // let processor = new PaymentPrcoessor();
 // processor.process(paymentMethod, 10);
+
+//singleton
+
+class Logger {
+  private static instance: Logger;
+
+  private constructor() {}
+
+  public static getInstance(): Logger {
+    if (!Logger.instance) Logger.instance = new Logger();
+    return Logger.instance;
+  }
+}
+
+let logger = Logger.getInstance();

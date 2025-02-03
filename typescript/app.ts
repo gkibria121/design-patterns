@@ -359,55 +359,83 @@
 
 // clientDatabaseService.fetchData("select * from students;");
 
-abstract class FileSystemComponent {
-  constructor(protected name: string, protected size: number) {}
-  public getName(): string {
-    return this.name;
+// abstract class FileSystemComponent {
+//   constructor(protected name: string, protected size: number) {}
+//   public getName(): string {
+//     return this.name;
+//   }
+//   public getSize(): number {
+//     return this.size;
+//   }
+// }
+
+// class FileClass extends FileSystemComponent {}
+
+// abstract class CompositeFileSystemComponent extends FileSystemComponent {
+//   protected abstract components: FileSystemComponent[];
+//   abstract addComponent(component: FileSystemComponent): void;
+//   abstract removeComponent(component: FileSystemComponent): boolean;
+//   abstract getComponents(): FileSystemComponent[];
+// }
+
+// class Folder extends CompositeFileSystemComponent {
+//   protected components: FileSystemComponent[] = [];
+
+//   constructor(protected name: string) {
+//     super(name, NaN);
+//   }
+
+//   addComponent(component: FileSystemComponent): void {
+//     this.components.push(component);
+//   }
+//   removeComponent(component: FileSystemComponent): boolean {
+//     let index = this.components.indexOf(component);
+//     if (index == -1) return false;
+//     this.components.splice(index, 1);
+//     return true;
+//   }
+//   getComponents(): FileSystemComponent[] {
+//     return this.components;
+//   }
+//   public getSize(): number {
+//     return this.components.reduce((acc, cur) => acc + cur.getSize(), 0);
+//   }
+// }
+
+// let file1 = new FileClass("file1.txt", 100);
+// let file2 = new FileClass("file2.txt", 200);
+
+// let folder = new Folder("folder-1");
+
+// folder.addComponent(file1);
+// folder.addComponent(file2);
+
+// console.log(folder);
+
+class MySQLDatabase {
+  connectToMySQL(uri: string) {
+    console.log(uri);
   }
-  public getSize(): number {
-    return this.size;
+  executeMySQLQuery(query: string) {
+    console.log(query);
   }
 }
 
-class FileClass extends FileSystemComponent {}
-
-abstract class CompositeFileSystemComponent extends FileSystemComponent {
-  protected abstract components: FileSystemComponent[];
-  abstract addComponent(component: FileSystemComponent): void;
-  abstract removeComponent(component: FileSystemComponent): boolean;
-  abstract getComponents(): FileSystemComponent[];
-}
-
-class Folder extends CompositeFileSystemComponent {
-  protected components: FileSystemComponent[] = [];
-
-  constructor(protected name: string) {
-    super(name, NaN);
+class PostgreSQLDatabase {
+  connectToPostgres(uri: string) {
+    console.log(uri);
   }
-
-  addComponent(component: FileSystemComponent): void {
-    this.components.push(component);
-  }
-  removeComponent(component: FileSystemComponent): boolean {
-    let index = this.components.indexOf(component);
-    if (index == -1) return false;
-    this.components.splice(index, 1);
-    return true;
-  }
-  getComponents(): FileSystemComponent[] {
-    return this.components;
-  }
-  public getSize(): number {
-    return this.components.reduce((acc, cur) => acc + cur.getSize(), 0);
+  executePostgresQuery(query: string) {
+    console.log(query);
   }
 }
 
-let file1 = new FileClass("file1.txt", 100);
-let file2 = new FileClass("file2.txt", 200);
-
-let folder = new Folder("folder-1");
-
-folder.addComponent(file1);
-folder.addComponent(file2);
-
-console.log(folder);
+class DatabaseAdapter {
+  constructor(private database: PostgreSQLDatabase) {}
+  connectToMySQL(uri: string) {
+    this.database.connectToPostgres(uri);
+  }
+  executeMySQLQuery(query: string) {
+    this.database.executePostgresQuery(query);
+  }
+}

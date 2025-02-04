@@ -412,30 +412,111 @@
 
 // console.log(folder);
 
-class MySQLDatabase {
-  connectToMySQL(uri: string) {
-    console.log(uri);
+// class MySQLDatabase {
+//   connectToMySQL(uri: string) {
+//     console.log(uri);
+//   }
+//   executeMySQLQuery(query: string) {
+//     console.log(query);
+//   }
+// }
+
+// class PostgreSQLDatabase {
+//   connectToPostgres(uri: string) {
+//     console.log(uri);
+//   }
+//   executePostgresQuery(query: string) {
+//     console.log(query);
+//   }
+// }
+
+// class DatabaseAdapter {
+//   constructor(private database: PostgreSQLDatabase) {}
+//   connectToMySQL(uri: string) {
+//     this.database.connectToPostgres(uri);
+//   }
+//   executeMySQLQuery(query: string) {
+//     this.database.executePostgresQuery(query);
+//   }
+// }
+
+interface IObserver {
+  update(subject: IObserverSubject): void;
+}
+
+interface IObserverSubject {
+  registerObserver(observer: IObserver): void;
+  removeObserver(observer: IObserver): void;
+  notifyObservers(): void;
+}
+
+abstract class Subject<T> implements IObserverSubject {
+  protected observers: IObserver[] = [];
+
+  registerObserver(observer: IObserver): void {
+    const isExists = this.observers.includes(observer);
+    if (isExists) {
+      console.log(`Observer already exists.`);
+      return;
+    }
+    this.observers.push(observer);
   }
-  executeMySQLQuery(query: string) {
-    console.log(query);
+
+  removeObserver(observer: IObserver): void {
+    const index = this.observers.indexOf(observer);
+    if (index === -1) {
+      console.log(`Observer does not exist.`);
+      return;
+    }
+    this.observers.splice(index, 1);
+  }
+
+  notifyObservers(): void {
+    this.observers.forEach((observer) => observer.update(this));
+  }
+
+  abstract getState(): T;
+  abstract setState(state: T): any;
+}
+
+type WeatherDataType = {
+  temperature?: number;
+  humidity?: number;
+  pressure?: number;
+};
+
+class WeatherStation extends Subject<WeatherDataType> {
+  private state: WeatherDataType = {};
+
+  public setState(newState: WeatherDataType): void {
+    this.state = newState;
+    this.notifyObservers();
+  }
+
+  public getState(): WeatherDataType {
+    return this.state;
   }
 }
 
-class PostgreSQLDatabase {
-  connectToPostgres(uri: string) {
-    console.log(uri);
+class CurrentConditionsDisplay implements IObserver {
+  update(subject: Subject<WeatherDataType>): void {
+    const state = subject.getState();
+    this.display(state);
   }
-  executePostgresQuery(query: string) {
-    console.log(query);
+
+  display(state: WeatherDataType): void {
+    console.log("Current conditions:", state);
   }
 }
 
-class DatabaseAdapter {
-  constructor(private database: PostgreSQLDatabase) {}
-  connectToMySQL(uri: string) {
-    this.database.connectToPostgres(uri);
-  }
-  executeMySQLQuery(query: string) {
-    this.database.executePostgresQuery(query);
-  }
-}
+// Usage
+const weatherStation = new WeatherStation();
+const display = new CurrentConditionsDisplay();
+
+weatherStation.registerObserver(display);
+
+weatherStation.setState({
+  temperature: 10,
+  humidity: 20,
+  pressure: 30,
+});

@@ -726,52 +726,132 @@
 
 // add State pattern
 
-interface Tool {
-  onMouseDown(): void;
-  onMouseUp(): void;
+// interface Tool {
+//   onMouseDown(): void;
+//   onMouseUp(): void;
+// }
+
+// class Canvas implements Tool {
+//   constructor(private tool: Tool) {}
+//   setTool(tool: Tool) {
+//     this.tool = tool;
+//   }
+//   onMouseDown(): void {
+//     this.tool.onMouseDown();
+//   }
+//   onMouseUp(): void {
+//     this.tool.onMouseUp();
+//   }
+// }
+
+// class SelectionTool implements Tool {
+//   onMouseDown(): void {
+//     console.log("Selection tool : Mouse Down");
+//   }
+//   onMouseUp(): void {
+//     console.log("Selection tool : Mouse Up");
+//   }
+// }
+
+// class BurshTool implements Tool {
+//   onMouseDown(): void {
+//     console.log("Brus tool : Mouse Down");
+//   }
+//   onMouseUp(): void {
+//     console.log("Brus tool : Mouse Up");
+//   }
+// }
+
+// class EraserTool implements Tool {
+//   onMouseDown(): void {
+//     console.log("Eraser tool : Mouse Down");
+//   }
+//   onMouseUp(): void {
+//     console.log("Eraser tool : Mouse Up");
+//   }
+// }
+
+// let burshTool = new BurshTool();
+// let canvas = new Canvas(burshTool);
+
+// canvas.onMouseDown();
+
+//add chain of responsibility
+
+interface Handler {
+  setNext(handler: Handler): Handler;
+  handle(order: Order): string | null;
 }
 
-class Canvas implements Tool {
-  constructor(private tool: Tool) {}
-  setTool(tool: Tool) {
-    this.tool = tool;
+class Order {
+  isValid() {
+    return true;
   }
-  onMouseDown(): void {
-    this.tool.onMouseDown();
+  applyDiscount(): void {
+    console.log("Appplying discount!");
   }
-  onMouseUp(): void {
-    this.tool.onMouseUp();
+  processPayment(): boolean {
+    console.log("Processing Pyament");
+    return true;
   }
-}
-
-class SelectionTool implements Tool {
-  onMouseDown(): void {
-    console.log("Selection tool : Mouse Down");
-  }
-  onMouseUp(): void {
-    console.log("Selection tool : Mouse Up");
+  ship(): void {
+    console.log("Shipping..");
   }
 }
 
-class BurshTool implements Tool {
-  onMouseDown(): void {
-    console.log("Brus tool : Mouse Down");
+abstract class AbstractHandler implements Handler {
+  private nextHandler: Handler | null;
+  setNext(handler: Handler) {
+    this.nextHandler = handler;
+    return handler;
   }
-  onMouseUp(): void {
-    console.log("Brus tool : Mouse Up");
-  }
-}
-
-class EraserTool implements Tool {
-  onMouseDown(): void {
-    console.log("Eraser tool : Mouse Down");
-  }
-  onMouseUp(): void {
-    console.log("Eraser tool : Mouse Up");
+  handle(order: Order) {
+    if (this.nextHandler) {
+      return this.nextHandler.handle(order);
+    }
+    return null;
   }
 }
 
-let burshTool = new BurshTool();
-let canvas = new Canvas(burshTool);
+class ValidationHandler extends AbstractHandler {
+  handle(order: Order): string | null {
+    if (!order.isValid()) {
+      return "order is not valid!";
+    }
+    return super.handle(order);
+  }
+}
 
-canvas.onMouseDown();
+class DiscountHandler extends AbstractHandler {
+  handle(order: Order): string | null {
+    order.applyDiscount();
+    return super.handle(order);
+  }
+}
+class PaymentHandler extends AbstractHandler {
+  handle(order: Order): string | null {
+    if (!order.processPayment()) {
+      return "Payment faild!";
+    }
+    return super.handle(order);
+  }
+}
+
+class ShipingHandler extends AbstractHandler {
+  handle(order: Order): string | null {
+    order.ship();
+    return super.handle(order);
+  }
+}
+
+let validationHandler = new ValidationHandler();
+let discountHandler = new DiscountHandler();
+let paymentHandler = new PaymentHandler();
+let shippingHandler = new ShipingHandler();
+validationHandler.setNext(paymentHandler).setNext(discountHandler).setNext(shippingHandler);
+
+let order = new Order();
+
+let result = validationHandler.handle(order);
+
+console.log(result);

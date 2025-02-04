@@ -650,76 +650,128 @@
 
 //Command pattern
 
-interface ICommand {
-  execute(): void;
-  undo(): void;
+// interface ICommand {
+//   execute(): void;
+//   undo(): void;
+// }
+
+// class CreateFileCommand implements ICommand {
+//   constructor(private path: string) {}
+//   execute(): void {
+//     console.log(`Creating file ${this.path}`);
+//   }
+//   undo() {
+//     console.log(`Deleting file ${this.path}`);
+//   }
+// }
+
+// class DeleteFileCommand implements ICommand {
+//   constructor(private path: string) {}
+//   execute(): void {
+//     console.log(`Deleting file ${this.path}`);
+//   }
+//   undo() {
+//     console.log(`Creating file ${this.path}`);
+//   }
+// }
+
+// class UpdateFileCommand implements ICommand {
+//   constructor(private path: string) {}
+//   execute(): void {
+//     console.log(`Update file ${this.path}`);
+//   }
+//   undo() {
+//     console.log(`Undo Update file ${this.path}`);
+//   }
+// }
+
+// class ReadFileCommand implements ICommand {
+//   constructor(private path: string) {}
+//   execute(): void {
+//     console.log(`Reading file ${this.path}`);
+//   }
+//   undo() {
+//     console.log(`Stop reading file ${this.path}`);
+//   }
+// }
+
+// class MyFileSystem {
+//   private commandQueue: ICommand[] = [];
+//   private previousCommand: ICommand;
+//   addCommand(command: ICommand) {
+//     this.commandQueue.push(command);
+//   }
+//   executeCommand() {
+//     let command = this.commandQueue.shift();
+//     if (!command) {
+//       throw new Error("No command found!");
+//     }
+//     this.previousCommand = command;
+//     command?.execute();
+//   }
+//   undoCommand() {
+//     this.previousCommand?.undo();
+//   }
+//   hasCommand(): boolean {
+//     return this.commandQueue.length > 0;
+//   }
+// }
+
+// let fileSystem = new MyFileSystem();
+
+// fileSystem.addCommand(new ReadFileCommand("test.txt"));
+
+// fileSystem.executeCommand();
+// fileSystem.undoCommand();
+
+// add State pattern
+
+interface Tool {
+  onMouseDown(): void;
+  onMouseUp(): void;
 }
 
-class CreateFileCommand implements ICommand {
-  constructor(private path: string) {}
-  execute(): void {
-    console.log(`Creating file ${this.path}`);
+class Canvas implements Tool {
+  constructor(private tool: Tool) {}
+  setTool(tool: Tool) {
+    this.tool = tool;
   }
-  undo() {
-    console.log(`Deleting file ${this.path}`);
+  onMouseDown(): void {
+    this.tool.onMouseDown();
   }
-}
-
-class DeleteFileCommand implements ICommand {
-  constructor(private path: string) {}
-  execute(): void {
-    console.log(`Deleting file ${this.path}`);
-  }
-  undo() {
-    console.log(`Creating file ${this.path}`);
+  onMouseUp(): void {
+    this.tool.onMouseUp();
   }
 }
 
-class UpdateFileCommand implements ICommand {
-  constructor(private path: string) {}
-  execute(): void {
-    console.log(`Update file ${this.path}`);
+class SelectionTool implements Tool {
+  onMouseDown(): void {
+    console.log("Selection tool : Mouse Down");
   }
-  undo() {
-    console.log(`Undo Update file ${this.path}`);
-  }
-}
-
-class ReadFileCommand implements ICommand {
-  constructor(private path: string) {}
-  execute(): void {
-    console.log(`Reading file ${this.path}`);
-  }
-  undo() {
-    console.log(`Stop reading file ${this.path}`);
+  onMouseUp(): void {
+    console.log("Selection tool : Mouse Up");
   }
 }
 
-class MyFileSystem {
-  private commandQueue: ICommand[] = [];
-  private previousCommand: ICommand;
-  addCommand(command: ICommand) {
-    this.commandQueue.push(command);
+class BurshTool implements Tool {
+  onMouseDown(): void {
+    console.log("Brus tool : Mouse Down");
   }
-  executeCommand() {
-    let command = this.commandQueue.shift();
-    if (!command) {
-      throw new Error("No command found!");
-    }
-    this.previousCommand = command;
-    command?.execute();
-  }
-  undoCommand() {
-    this.previousCommand?.undo();
-  }
-  hasCommand(): boolean {
-    return this.commandQueue.length > 0;
+  onMouseUp(): void {
+    console.log("Brus tool : Mouse Up");
   }
 }
 
-let fileSystem = new MyFileSystem();
+class EraserTool implements Tool {
+  onMouseDown(): void {
+    console.log("Eraser tool : Mouse Down");
+  }
+  onMouseUp(): void {
+    console.log("Eraser tool : Mouse Up");
+  }
+}
 
-fileSystem.addCommand(new ReadFileCommand("test.txt"));
+let burshTool = new BurshTool();
+let canvas = new Canvas(burshTool);
 
-fileSystem.executeCommand();
-fileSystem.undoCommand();
+canvas.onMouseDown();

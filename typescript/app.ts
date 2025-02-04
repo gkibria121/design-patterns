@@ -521,55 +521,129 @@
 //   pressure: 30,
 // });
 
-interface IIterator<T> {
-  next(): IIteratorResult<T>;
-  hasNext(): boolean;
-}
+// interface IIterator<T> {
+//   next(): IIteratorResult<T>;
+//   hasNext(): boolean;
+// }
 
-interface IIteratorResult<T> {
-  value: T;
-  done: boolean;
-}
+// interface IIteratorResult<T> {
+//   value: T;
+//   done: boolean;
+// }
 
-interface ICollection<T> {
-  createIterator(): IIterator<T>;
-}
+// interface ICollection<T> {
+//   createIterator(): IIterator<T>;
+// }
 
-class User {
-  constructor(public name: string) {}
-}
+// class User {
+//   constructor(public name: string) {}
+// }
 
-class UserIterator implements IIterator<User> {
-  private position: number = -1;
-  constructor(private collection: UserCollection) {}
-  next(): IIteratorResult<User> {
-    let index = this.position;
-    this.position += 1;
-    return {
-      value: this.collection.getItems()[index],
-      done: this.position === this.collection.getItems().length,
-    };
+// class UserIterator implements IIterator<User> {
+//   private position: number = -1;
+//   constructor(private collection: UserCollection) {}
+//   next(): IIteratorResult<User> {
+//     let index = this.position;
+//     this.position += 1;
+//     return {
+//       value: this.collection.getItems()[index],
+//       done: this.position === this.collection.getItems().length,
+//     };
+//   }
+//   hasNext(): boolean {
+//     return this.collection.getItems().length < this.position;
+//   }
+// }
+
+// class UserCollection implements ICollection<User> {
+//   constructor(private users: User[]) {}
+//   createIterator(): IIterator<User> {
+//     return new UserIterator(this);
+//   }
+//   public getItems(): User[] {
+//     return this.users;
+//   }
+// }
+
+// let user1 = new User("gk");
+// let user2 = new User("ms");
+
+// let userCollection = new UserCollection([user1, user2]);
+// let userIterator = userCollection.createIterator();
+
+// console.log(userIterator.next());
+// console.log(userIterator.next());
+
+// Strategy pattern
+
+// class ImageProcessor {
+//   constructor(private strategy: IFilterStrategy) {}
+//   setStrategy(strategy: IFilterStrategy): void {
+//     this.strategy = strategy;
+//   }
+//   apply(image: string): void {
+//     this.strategy.apply(image);
+//   }
+// }
+
+// interface IFilterStrategy {
+//   apply(image: string): void;
+// }
+
+// class GrayscaleStrategy implements IFilterStrategy {
+//   apply(image: string): void {
+//     console.log(`Applying Gray Scale Filter`);
+//   }
+// }
+
+// class SepiaStrategy implements IFilterStrategy {
+//   apply(image: string): void {
+//     console.log(`Applying Sepia Filter`);
+//   }
+// }
+
+// class NegativeStrategy implements IFilterStrategy {
+//   apply(image: string): void {
+//     console.log(`Applying Negative Filter`);
+//   }
+// }
+// let grayFilter = new GrayscaleStrategy();
+// let imageProcessor = new ImageProcessor(grayFilter);
+// imageProcessor.apply("test image");
+
+abstract class DataParser {
+  parseData(data: string) {
+    let parsedData = this.parse(data);
+    this.loadData(parsedData);
+    this.validateData(parsedData);
+    this.useData(parsedData);
   }
-  hasNext(): boolean {
-    return this.collection.getItems().length < this.position;
+  private loadData(parsedata: any): void {
+    console.log(`Loading data...`);
+  }
+  private validateData(parsedata: any): void {
+    console.log(`validating data...`);
+  }
+  private useData(parsedata: any) {
+    console.log(`Using data..`);
+  }
+  protected parse(data: string) {
+    console.log("Default parsing the data");
   }
 }
 
-class UserCollection implements ICollection<User> {
-  constructor(private users: User[]) {}
-  createIterator(): IIterator<User> {
-    return new UserIterator(this);
-  }
-  public getItems(): User[] {
-    return this.users;
+class JSONParser extends DataParser {
+  protected parse(data: string) {
+    console.log("Parsing data in json..");
   }
 }
 
-let user1 = new User("gk");
-let user2 = new User("ms");
+class XMLParser extends DataParser {
+  protected parse(data: string) {
+    console.log("Parsing data in XML..");
+  }
+}
 
-let userCollection = new UserCollection([user1, user2]);
-let userIterator = userCollection.createIterator();
-
-console.log(userIterator.next());
-console.log(userIterator.next());
+let parser = new JSONParser();
+let rawData = '{"1" : "hi there"}';
+let data = parser.parseData(rawData);

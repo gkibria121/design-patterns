@@ -611,39 +611,115 @@
 // let imageProcessor = new ImageProcessor(grayFilter);
 // imageProcessor.apply("test image");
 
-abstract class DataParser {
-  parseData(data: string) {
-    let parsedData = this.parse(data);
-    this.loadData(parsedData);
-    this.validateData(parsedData);
-    this.useData(parsedData);
+// abstract class DataParser {
+//   parseData(data: string) {
+//     let parsedData = this.parse(data);
+//     this.loadData(parsedData);
+//     this.validateData(parsedData);
+//     this.useData(parsedData);
+//   }
+//   private loadData(parsedata: any): void {
+//     console.log(`Loading data...`);
+//   }
+//   private validateData(parsedata: any): void {
+//     console.log(`validating data...`);
+//   }
+//   private useData(parsedata: any) {
+//     console.log(`Using data..`);
+//   }
+//   protected parse(data: string) {
+//     console.log("Default parsing the data");
+//   }
+// }
+
+// class JSONParser extends DataParser {
+//   protected parse(data: string) {
+//     console.log("Parsing data in json..");
+//   }
+// }
+
+// class XMLParser extends DataParser {
+//   protected parse(data: string) {
+//     console.log("Parsing data in XML..");
+//   }
+// }
+
+// let parser = new JSONParser();
+// let rawData = '{"1" : "hi there"}';
+// let data = parser.parseData(rawData);
+
+//Command pattern
+
+interface ICommand {
+  execute(): void;
+  undo(): void;
+}
+
+class CreateFileCommand implements ICommand {
+  constructor(private path: string) {}
+  execute(): void {
+    console.log(`Creating file ${this.path}`);
   }
-  private loadData(parsedata: any): void {
-    console.log(`Loading data...`);
-  }
-  private validateData(parsedata: any): void {
-    console.log(`validating data...`);
-  }
-  private useData(parsedata: any) {
-    console.log(`Using data..`);
-  }
-  protected parse(data: string) {
-    console.log("Default parsing the data");
+  undo() {
+    console.log(`Deleting file ${this.path}`);
   }
 }
 
-class JSONParser extends DataParser {
-  protected parse(data: string) {
-    console.log("Parsing data in json..");
+class DeleteFileCommand implements ICommand {
+  constructor(private path: string) {}
+  execute(): void {
+    console.log(`Deleting file ${this.path}`);
+  }
+  undo() {
+    console.log(`Creating file ${this.path}`);
   }
 }
 
-class XMLParser extends DataParser {
-  protected parse(data: string) {
-    console.log("Parsing data in XML..");
+class UpdateFileCommand implements ICommand {
+  constructor(private path: string) {}
+  execute(): void {
+    console.log(`Update file ${this.path}`);
+  }
+  undo() {
+    console.log(`Undo Update file ${this.path}`);
   }
 }
 
-let parser = new JSONParser();
-let rawData = '{"1" : "hi there"}';
-let data = parser.parseData(rawData);
+class ReadFileCommand implements ICommand {
+  constructor(private path: string) {}
+  execute(): void {
+    console.log(`Reading file ${this.path}`);
+  }
+  undo() {
+    console.log(`Stop reading file ${this.path}`);
+  }
+}
+
+class MyFileSystem {
+  private commandQueue: ICommand[] = [];
+  private previousCommand: ICommand;
+  addCommand(command: ICommand) {
+    this.commandQueue.push(command);
+  }
+  executeCommand() {
+    let command = this.commandQueue.shift();
+    if (!command) {
+      throw new Error("No command found!");
+    }
+    this.previousCommand = command;
+    command?.execute();
+  }
+  undoCommand() {
+    this.previousCommand?.undo();
+  }
+  hasCommand(): boolean {
+    return this.commandQueue.length > 0;
+  }
+}
+
+let fileSystem = new MyFileSystem();
+
+fileSystem.addCommand(new ReadFileCommand("test.txt"));
+
+fileSystem.executeCommand();
+fileSystem.undoCommand();

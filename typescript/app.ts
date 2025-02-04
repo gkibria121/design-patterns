@@ -440,83 +440,136 @@
 //   }
 // }
 
-interface IObserver {
-  update(subject: IObserverSubject): void;
+// interface IObserver {
+//   update(subject: IObserverSubject): void;
+// }
+
+// interface IObserverSubject {
+//   registerObserver(observer: IObserver): void;
+//   removeObserver(observer: IObserver): void;
+//   notifyObservers(): void;
+// }
+
+// abstract class Subject<T> implements IObserverSubject {
+//   protected observers: IObserver[] = [];
+
+//   registerObserver(observer: IObserver): void {
+//     const isExists = this.observers.includes(observer);
+//     if (isExists) {
+//       console.log(`Observer already exists.`);
+//       return;
+//     }
+//     this.observers.push(observer);
+//   }
+
+//   removeObserver(observer: IObserver): void {
+//     const index = this.observers.indexOf(observer);
+//     if (index === -1) {
+//       console.log(`Observer does not exist.`);
+//       return;
+//     }
+//     this.observers.splice(index, 1);
+//   }
+
+//   notifyObservers(): void {
+//     this.observers.forEach((observer) => observer.update(this));
+//   }
+
+//   abstract getState(): T;
+//   abstract setState(state: T): any;
+// }
+
+// type WeatherDataType = {
+//   temperature?: number;
+//   humidity?: number;
+//   pressure?: number;
+// };
+
+// class WeatherStation extends Subject<WeatherDataType> {
+//   private state: WeatherDataType = {};
+
+//   public setState(newState: WeatherDataType): void {
+//     this.state = newState;
+//     this.notifyObservers();
+//   }
+
+//   public getState(): WeatherDataType {
+//     return this.state;
+//   }
+// }
+
+// class CurrentConditionsDisplay implements IObserver {
+//   update(subject: Subject<WeatherDataType>): void {
+//     const state = subject.getState();
+//     this.display(state);
+//   }
+
+//   display(state: WeatherDataType): void {
+//     console.log("Current conditions:", state);
+//   }
+// }
+
+// // Usage
+// const weatherStation = new WeatherStation();
+// const display = new CurrentConditionsDisplay();
+
+// weatherStation.registerObserver(display);
+
+// weatherStation.setState({
+//   temperature: 10,
+//   humidity: 20,
+//   pressure: 30,
+// });
+
+interface IIterator<T> {
+  next(): IIteratorResult<T>;
+  hasNext(): boolean;
 }
 
-interface IObserverSubject {
-  registerObserver(observer: IObserver): void;
-  removeObserver(observer: IObserver): void;
-  notifyObservers(): void;
+interface IIteratorResult<T> {
+  value: T;
+  done: boolean;
 }
 
-abstract class Subject<T> implements IObserverSubject {
-  protected observers: IObserver[] = [];
-
-  registerObserver(observer: IObserver): void {
-    const isExists = this.observers.includes(observer);
-    if (isExists) {
-      console.log(`Observer already exists.`);
-      return;
-    }
-    this.observers.push(observer);
-  }
-
-  removeObserver(observer: IObserver): void {
-    const index = this.observers.indexOf(observer);
-    if (index === -1) {
-      console.log(`Observer does not exist.`);
-      return;
-    }
-    this.observers.splice(index, 1);
-  }
-
-  notifyObservers(): void {
-    this.observers.forEach((observer) => observer.update(this));
-  }
-
-  abstract getState(): T;
-  abstract setState(state: T): any;
+interface ICollection<T> {
+  createIterator(): IIterator<T>;
 }
 
-type WeatherDataType = {
-  temperature?: number;
-  humidity?: number;
-  pressure?: number;
-};
+class User {
+  constructor(public name: string) {}
+}
 
-class WeatherStation extends Subject<WeatherDataType> {
-  private state: WeatherDataType = {};
-
-  public setState(newState: WeatherDataType): void {
-    this.state = newState;
-    this.notifyObservers();
+class UserIterator implements IIterator<User> {
+  private position: number = -1;
+  constructor(private collection: UserCollection) {}
+  next(): IIteratorResult<User> {
+    let index = this.position;
+    this.position += 1;
+    return {
+      value: this.collection.getItems()[index],
+      done: this.position === this.collection.getItems().length,
+    };
   }
-
-  public getState(): WeatherDataType {
-    return this.state;
+  hasNext(): boolean {
+    return this.collection.getItems().length < this.position;
   }
 }
 
-class CurrentConditionsDisplay implements IObserver {
-  update(subject: Subject<WeatherDataType>): void {
-    const state = subject.getState();
-    this.display(state);
+class UserCollection implements ICollection<User> {
+  constructor(private users: User[]) {}
+  createIterator(): IIterator<User> {
+    return new UserIterator(this);
   }
-
-  display(state: WeatherDataType): void {
-    console.log("Current conditions:", state);
+  public getItems(): User[] {
+    return this.users;
   }
 }
 
-// Usage
-const weatherStation = new WeatherStation();
-const display = new CurrentConditionsDisplay();
+let user1 = new User("gk");
+let user2 = new User("ms");
 
-weatherStation.registerObserver(display);
+let userCollection = new UserCollection([user1, user2]);
+let userIterator = userCollection.createIterator();
 
-weatherStation.setState({
-  temperature: 10,
-  humidity: 20,
-  pressure: 30,
-});
+console.log(userIterator.next());
+console.log(userIterator.next());
